@@ -280,8 +280,8 @@ export default new Command({
         );
 
         serverEmbed.addField(
-          "Visibility",
-          server.visibility ? "On" : "Off",
+          "Whitelist",
+          server.serverProperties["white-list"] ? "On" : "Off",
           true
         );
 

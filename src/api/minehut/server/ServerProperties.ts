@@ -21,4 +21,5 @@ export interface ServerProperties {
   resource_pack_sha1: string;
   spawn_mobs: boolean;
   view_distance: number;
+  "white-list": boolean;
 }

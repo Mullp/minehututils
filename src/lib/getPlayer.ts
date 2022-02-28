@@ -17,15 +17,31 @@ export async function getPlayer(player: string) {
     !nameCache.has(player.toLowerCase()) &&
     !uuidCache.has(player.toLowerCase())
   ) {
-    return fetch(`https://mc-heads.net/minecraft/profile/${player}`)
+    return await fetch(
+      `https://api.mojang.com/users/profiles/minecraft/${player}`
+    )
       .then((data: any) => data.json())
       .then(async (apiPlayer: ApiPlayer) => {
         nameCache.set(apiPlayer.name.toLowerCase(), apiPlayer);
         uuidCache.set((await idToUuid(apiPlayer.id)).toLowerCase(), apiPlayer);
         return apiPlayer;
       })
-      .catch(() => {
-        return;
+      .catch(async () => {
+        return await fetch(
+          `https://sessionserver.mojang.com/session/minecraft/profile/${player}`
+        )
+          .then((data: any) => data.json())
+          .then(async (apiPlayer: ApiPlayer) => {
+            nameCache.set(apiPlayer.name.toLowerCase(), apiPlayer);
+            uuidCache.set(
+              (await idToUuid(apiPlayer.id)).toLowerCase(),
+              apiPlayer
+            );
+            return apiPlayer;
+          })
+          .catch(() => {
+            return;
+          });
       });
   } else {
     return nameCache.has(player.toLowerCase())

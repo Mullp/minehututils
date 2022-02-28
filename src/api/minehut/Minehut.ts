@@ -9,6 +9,7 @@ import { PlayerDistributionResponse } from "./stats/PlayerDistributionResponse";
 import { AddonManager } from "./addon/AddonManager";
 import { ServersResponse } from "./servers/ServersResponse";
 import { PlayerManager } from "./player/PlayerManager";
+import { HomepageStatsResponse } from "./stats/HomepageStatsResponse";
 
 export class Minehut {
   icons: IconManager;
@@ -34,6 +35,17 @@ export class Minehut {
       .then((res) => res.json())
       .then((res: ServersResponse) => {
         return res as ServersResponse;
+      })
+      .catch(() => {
+        return;
+      });
+  }
+
+  async getHomepageStats() {
+    return await fetch(`${this.API_BASE}/network/homepage_stats`)
+      .then((res) => res.json())
+      .then((res: HomepageStatsResponse) => {
+        return res;
       })
       .catch(() => {
         return;

@@ -24,7 +24,7 @@ export class Server {
   categories: string[];
 
   online: boolean;
-  maxPlayers: number;
+  maxPlayers?: number;
   playerCount: number;
   players?: string[];
 
@@ -73,6 +73,26 @@ export class Server {
     );
 
     return servers.findIndex((server) => this.name === server.name) + 1;
+  }
+
+  async getMaxPlayers() {
+    return this.maxPlayers
+      ? this.maxPlayers
+      : this.activeServerPlan === "YEARLY MH Unlimited"
+      ? "500"
+      : this.activeServerPlan === "MH Unlimited"
+      ? "500"
+      : this.activeServerPlan === "MH75"
+      ? "75"
+      : this.activeServerPlan === "MH35"
+      ? "35"
+      : this.activeServerPlan === "MH20"
+      ? "20"
+      : this.activeServerPlan === "Daily"
+      ? "20"
+      : this.activeServerPlan === "Free"
+      ? "10"
+      : "10";
   }
 
   async getPurchasedIcons() {

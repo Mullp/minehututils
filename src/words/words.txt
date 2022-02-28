@@ -5,8 +5,8 @@
 12point
 16point
 18point
-2,4,5t
-2,4d
+245t
+24d
 20point
 3030
 48point

@@ -4,9 +4,7 @@ import {
   formatEmoji,
   hyperlink,
   inlineCode,
-  italic,
   SlashCommandBuilder,
-  strikethrough,
   time,
   underscore,
 } from "@discordjs/builders";
@@ -279,11 +277,12 @@ export default new Command({
           true
         );
 
-        serverEmbed.addField(
-          "Whitelist",
-          server.serverProperties["white-list"] ? "On" : "Off",
-          true
-        );
+        if (server.serverProperties)
+          serverEmbed.addField(
+            "Whitelist",
+            server.serverProperties["white-list"] ? "On" : "Off",
+            true
+          );
 
         serverEmbed.addField("\u200B", "\u200B", false);
         serverEmbed.addField(
@@ -299,7 +298,9 @@ export default new Command({
         if (interaction.guildId !== process.env.guildId)
           await addInviteField(serverEmbed);
 
-        await interaction.editReply({ embeds: [serverEmbed] });
+        await interaction.editReply({
+          embeds: [serverEmbed],
+        });
 
         const installedContent = (await server.getInstalledContent()).map(
           (content) =>

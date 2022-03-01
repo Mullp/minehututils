@@ -23,7 +23,7 @@ export interface ServerResponse {
   storage_node: string;
   last_online: number;
   offer: string;
-  server_properties: ServerProperties;
+  server_properties?: ServerProperties;
   suspended: boolean;
   categories: string[];
 

@@ -19,7 +19,7 @@ export class Server {
   storageNode: string;
   lastOnline: number;
   offer: string;
-  serverProperties: ServerProperties;
+  serverProperties?: ServerProperties;
   suspended: boolean;
   categories: string[];
 

@@ -8,10 +8,11 @@ import {
   time,
   underscore,
 } from "@discordjs/builders";
-import { MessageEmbed } from "discord.js";
+import { MessageAttachment, MessageEmbed } from "discord.js";
 import { minehut } from "../..";
 import { addInviteField } from "../../lib/addInviteField";
 import { Command } from "../structures/Command";
+import { ChartJSNodeCanvas } from "chartjs-node-canvas";
 
 export default new Command({
   data: new SlashCommandBuilder()
@@ -136,10 +137,45 @@ export default new Command({
             true
           );
 
+        /** 
+         const chart = new ChartJSNodeCanvas({
+           width: 400,
+           height: 200,
+           backgroundColour: "transparent",
+         });
+ 
+         const image = await chart.renderToBuffer({
+           type: "doughnut",
+           data: {
+             labels: ["Java", "Bedrock"],
+             datasets: [
+               {
+                 data: [
+                   minehutPlayerDistribution.java.total,
+                   minehutPlayerDistribution.bedrock.total,
+                 ],
+                 backgroundColor: ["white", "grey"],
+               },
+             ],
+           },
+           options: {
+             borderColor: "transparent",
+           },
+         });
+ 
+         const attachment = new MessageAttachment(image, "sample.png");
+ 
+         minehutEmbed.setImage("attachment://sample.png");
+         */
+
         if (interaction.guildId !== process.env.guildId)
           await addInviteField(minehutEmbed);
 
-        await interaction.editReply({ embeds: [minehutEmbed] });
+        await interaction.editReply({
+          embeds: [minehutEmbed],
+          // files: [attachment],
+        });
+
         break;
 
       case "server":

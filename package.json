@@ -6,6 +6,8 @@
   "license": "MIT",
   "dependencies": {
     "@discordjs/builders": "^0.12.0",
+    "chart.js": "^3.7.1",
+    "chartjs-node-canvas": "^4.1.6",
     "cross-fetch": "^3.1.5",
     "discord.js": "^13.6.0",
     "dotenv": "^16.0.0",

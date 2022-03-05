@@ -22,7 +22,7 @@ export class ExtendedClient extends Client {
 
   constructor() {
     super({
-      intents: [],
+      intents: ["GUILDS"],
       allowedMentions: { parse: [] },
       presence: {
         status: "online",

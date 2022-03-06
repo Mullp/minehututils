@@ -9,6 +9,11 @@ import { minehut } from "../..";
 import { addInviteField } from "../../lib/addInviteField";
 import { Command } from "../structures/Command";
 
+const allWords: string[] = readFileSync("./assets/words/words.txt")
+  .toString()
+  .replaceAll("\r", "")
+  .split("\n");
+
 export default new Command({
   data: new SlashCommandBuilder()
     .setName("names")
@@ -39,10 +44,7 @@ export default new Command({
   run: async ({ interaction }) => {
     const amount: number = interaction.options.getNumber("amount") || 10; // TODO: Add mongoDB user rank
 
-    let words: string[] = readFileSync("./src/assets/words/words.txt")
-      .toString()
-      .replaceAll("\r", "")
-      .split("\n");
+    let words: string[] = allWords;
 
     if (interaction.options.getString("includes"))
       words = words.filter((word) =>
@@ -55,11 +57,6 @@ export default new Command({
           word.length ===
           Math.floor(interaction.options.getNumber("length") || 6)
       );
-
-    words = words.reduce((a: string[], b) => {
-      if (a.indexOf(b) < 0) a.push(b);
-      return a;
-    }, []);
 
     const checkedNames: string[] = [];
     const names = await Promise.all(

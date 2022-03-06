@@ -56,6 +56,11 @@ export default new Command({
           Math.floor(interaction.options.getNumber("length") || 6)
       );
 
+    words = words.reduce((a: string[], b) => {
+      if (a.indexOf(b) < 0) a.push(b);
+      return a;
+    }, []);
+
     const checkedNames: string[] = [];
     const names = await Promise.all(
       [...Array(amount)].map(async () => {
@@ -66,11 +71,9 @@ export default new Command({
             words[Math.floor(Math.random() * words.length)].toLowerCase();
 
           if (checkedNames.includes(randomWord)) continue;
-
           checkedNames.push(randomWord);
-          if (!(await minehut.servers.get(randomWord))) {
-            return randomWord;
-          }
+
+          if (!(await minehut.servers.get(randomWord))) return randomWord;
         }
       })
     );
@@ -97,7 +100,9 @@ export default new Command({
 
         namesEmbed.addField(
           index === 0
-            ? `${inlineCode(names.length.toString())} available names`
+            ? `${inlineCode(
+                names.filter((word) => word !== undefined).length.toString()
+              )} available names`
             : "\u200B",
           codeBlock(chunk.filter((word) => word !== undefined).join("\n")),
           true

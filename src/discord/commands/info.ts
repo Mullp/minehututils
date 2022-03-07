@@ -306,15 +306,20 @@ export default new Command({
         });
 
         const installedContent = (await server.getInstalledContent()).map(
-          (content) =>
-            `${hyperlink(
-              content.title,
-              content.details.links[1].linkUrl
-                ? content.details.links[1].linkUrl.split(" ")[0]
-                : content.details.links[0].linkUrl
-                ? content.details.links[0].linkUrl.split(" ")[0]
-                : ""
-            )}`
+          (content) => {
+            const url = content.details.links[1].linkUrl
+              ? content.details.links[1].linkUrl.split(" ")[0]
+              : content.details.links[0].linkUrl
+              ? content.details.links[0].linkUrl.split(" ")[0]
+              : "";
+
+            return `${hyperlink(
+              url.includes("discord.gg")
+                ? `${formatEmoji("950376852642471996")} ${content.title}`
+                : content.title,
+              url
+            )}`;
+          }
         );
 
         if (installedContent && installedContent.length > 0) {

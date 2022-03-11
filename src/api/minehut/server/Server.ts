@@ -64,15 +64,20 @@ export class Server {
   }
 
   async getRank() {
-    const servers = (await this.client.getServers())?.servers;
-
-    if (!servers) return;
-
-    servers.sort((a, b) =>
-      a.playerData.playerCount < b.playerData.playerCount ? 1 : -1
-    );
-
-    return servers.findIndex((server) => this.name === server.name) + 1;
+    return await this.client
+      .getServers()
+      .then((res) => {
+        return (
+          res.servers
+            .sort((a, b) =>
+              a.playerData.playerCount < b.playerData.playerCount ? 1 : -1
+            )
+            .findIndex((server) => this.name === server.name) + 1
+        );
+      })
+      .catch((err) => {
+        throw err;
+      });
   }
 
   async getMaxPlayers() {

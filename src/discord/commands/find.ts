@@ -49,9 +49,7 @@ export default new Command({
       return await interaction.editReply({ embeds: [embed] });
     }
 
-    const serverOn = await minehut.players.find(
-      (await idToUuid(player.id)) || ""
-    );
+    const serverOn = await minehut.players.find(idToUuid(player.id) || "");
 
     const embed: MessageEmbed = new MessageEmbed()
       .setColor("#ffffff")

@@ -1,5 +1,6 @@
 import {
   ApplicationCommandDataResolvable,
+  AutocompleteInteraction,
   Client,
   ClientEvents,
   Collection,
@@ -14,11 +15,13 @@ import {
   SlashCommandBuilder,
   SlashCommandSubcommandsOnlyBuilder,
 } from "@discordjs/builders";
+import { Autocompletion } from "./Autocompletion";
 
 const globPromise = promisify(glob);
 
 export class ExtendedClient extends Client {
   commands: Collection<string, CommandType> = new Collection();
+  autocompletions: Collection<string, Autocompletion> = new Collection();
 
   constructor() {
     super({
@@ -83,6 +86,16 @@ export class ExtendedClient extends Client {
           commands: slashCommands,
           guildId: process.env.guildId,
         });
+    });
+
+    // * Autocompletions
+    const autocompleFiles = await globPromise(
+      `${__dirname}/../autocompletions/*{.ts,.js}`
+    );
+
+    autocompleFiles.forEach(async (filePath) => {
+      const autocompletion: Autocompletion = await this.importFile(filePath);
+      this.autocompletions.set(autocompletion.command, autocompletion);
     });
 
     // * Event

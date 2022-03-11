@@ -1,4 +1,4 @@
-export async function idToUuid(id: string) {
+export function idToUuid(id: string) {
   return (
     id.slice(0, 8) +
     "-" +

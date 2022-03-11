@@ -40,7 +40,7 @@ export class ServerManager {
     )
       .then((res) => res.json())
       .then((res) => {
-        if (res.hasOwnProperty("ok")) return;
+        if (res.hasOwnProperty("ok")) throw new Error("Unknown server");
 
         const apiServer: ServerResponse = res.server;
         nameCache.set(apiServer.name.toLowerCase(), apiServer);
@@ -48,8 +48,8 @@ export class ServerManager {
 
         return new Server(apiServer, this.client);
       })
-      .catch(() => {
-        return;
+      .catch((err) => {
+        throw err;
       });
   }
 }

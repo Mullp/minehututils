@@ -28,6 +28,7 @@ export default new Command({
           option
             .setName("server")
             .setDescription("The server to get info on.")
+            .setAutocomplete(true)
             .setRequired(true)
         )
     ),
@@ -35,8 +36,13 @@ export default new Command({
   run: async ({ interaction }) => {
     switch (interaction.options.getSubcommand()) {
       case "minehut": // TODO: Add minehut stats
-        const servers = (await minehut.getServers())?.servers.sort((a, b) =>
-          a.playerData.playerCount < b.playerData.playerCount ? 1 : -1
+        // const servers = (await minehut.getServers())?.servers.sort((a, b) =>
+        //   a.playerData.playerCount < b.playerData.playerCount ? 1 : -1
+        // );
+
+        const servers = (await minehut.getServers().catch()).servers.sort(
+          (a, b) =>
+            a.playerData.playerCount < b.playerData.playerCount ? 1 : -1
         );
         const minehutSimpleStats = await minehut.getSimpleStats();
         const minehutPlayerDistribution = await minehut.getPlayerDistribution();
@@ -146,9 +152,9 @@ export default new Command({
         break;
 
       case "server":
-        const server = await minehut.servers.get(
-          interaction.options.getString("server") || ""
-        );
+        const server = await minehut.servers
+          .get(interaction.options.getString("server") || "")
+          .catch();
 
         if (!server) {
           const unknownEmbed: MessageEmbed = new MessageEmbed()

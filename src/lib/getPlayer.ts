@@ -16,35 +16,45 @@ export async function getPlayer(player: string) {
   if (
     nameCache.has(player.toLowerCase()) ||
     uuidCache.has(player.toLowerCase())
-  )
+  ) {
+    console.log("got from cahce");
+
     return nameCache.has(player.toLowerCase())
       ? (nameCache.get(player.toLowerCase()) as ApiPlayer)
       : (uuidCache.get(player.toLowerCase()) as ApiPlayer);
+  }
 
-  return await fetch(
-    `https://api.mojang.com/users/profiles/minecraft/${player}`
+  if (/^([a-zA-Z0-9_]{3,16})$/.test(player))
+    return await fetch(
+      `https://api.mojang.com/users/profiles/minecraft/${player}`
+    )
+      .then((data: any) => data.json())
+      .then(async (apiPlayer: ApiPlayer) => {
+        nameCache.set(apiPlayer.name.toLowerCase(), apiPlayer);
+        uuidCache.set((await idToUuid(apiPlayer.id)).toLowerCase(), apiPlayer);
+        return apiPlayer;
+      });
+
+  if (
+    /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/.test(
+      player
+    )
   )
-    .then((data: any) => data.json())
-    .then(async (apiPlayer: ApiPlayer) => {
-      nameCache.set(apiPlayer.name.toLowerCase(), apiPlayer);
-      uuidCache.set((await idToUuid(apiPlayer.id)).toLowerCase(), apiPlayer);
-      return apiPlayer;
-    })
-    .catch(async () => {
-      return await fetch(
-        `https://sessionserver.mojang.com/session/minecraft/profile/${player}`
-      )
-        .then((data: any) => data.json())
-        .then(async (apiPlayer: ApiPlayer) => {
-          nameCache.set(apiPlayer.name.toLowerCase(), apiPlayer);
-          uuidCache.set(
-            (await idToUuid(apiPlayer.id)).toLowerCase(),
-            apiPlayer
-          );
-          return apiPlayer;
-        })
-        .catch(() => {
-          return;
-        });
-    });
+    return await fetch(
+      `https://sessionserver.mojang.com/session/minecraft/profile/${player}`
+    )
+      .then((data: any) => data.json())
+      .then((apiPlayer) => {
+        if (apiPlayer.path) throw new Error("No response");
+
+        nameCache.set(apiPlayer.name.toLowerCase(), apiPlayer);
+        uuidCache.set(idToUuid(apiPlayer.id).toLowerCase(), apiPlayer);
+
+        return apiPlayer as ApiPlayer;
+      })
+      .catch((err) => {
+        throw err;
+      });
+
+  return new Error("Unknown player string");
 }

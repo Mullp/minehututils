@@ -1,24 +1,28 @@
+import fetch from "cross-fetch";
 import { DEV_MINEHUT_API_BASE, MINEHUT_API_BASE } from "./constants";
 import { ServerManager } from "./server/ServerManager";
 import { IconManager } from "./icon/IconManager";
 import { PluginManager } from "./plugin/PluginManager";
-import fetch from "cross-fetch";
-
 import { SimpleStatsResponse } from "./stats/SimpleStatsResponse";
 import { PlayerDistributionResponse } from "./stats/PlayerDistributionResponse";
 import { AddonManager } from "./addon/AddonManager";
 import { ServersResponse } from "./servers/ServersResponse";
 import { PlayerManager } from "./player/PlayerManager";
 import { HomepageStatsResponse } from "./stats/HomepageStatsResponse";
+import NodeCache from "node-cache";
+import { getPlayer } from "../../lib/getPlayer";
 
 export class Minehut {
+  API_BASE: string;
+
   icons: IconManager;
   servers: ServerManager;
   plugins: PluginManager;
   addons: AddonManager;
   players: PlayerManager;
 
-  API_BASE: string;
+  playersCache: NodeCache;
+  serversCache: NodeCache;
 
   constructor(settings: MinehutSettings = { dev: false }) {
     this.API_BASE = settings.dev ? DEV_MINEHUT_API_BASE : MINEHUT_API_BASE;
@@ -28,16 +32,60 @@ export class Minehut {
     this.plugins = new PluginManager(this);
     this.addons = new AddonManager(this);
     this.players = new PlayerManager(this);
+
+    this.playersCache = new NodeCache({
+      stdTTL: 10 * 60, // * 10 minutes
+      checkperiod: 2 * 60, // * 2 minute
+    });
+
+    this.serversCache = new NodeCache({
+      stdTTL: 10 * 60, // * 10 minutes
+      checkperiod: 2 * 60, // * 2 minute
+    });
+  }
+
+  async getPlayers() {
+    if (this.playersCache.has("players")) {
+      return this.playersCache.get("players") as string[];
+    }
+
+    return await this.getServers()
+      .then(async (res) => {
+        const players = await this.getServers()
+          .then((res) =>
+            res.servers
+              .map((server) =>
+                server.playerData.players.map((player) => player)
+              )
+              .flat(1)
+              .filter((uuid) => !uuid.startsWith("00000000"))
+          )
+          .catch((err) => {
+            throw err;
+          });
+
+        this.playersCache.set("players", players);
+
+        return players;
+      })
+      .catch((err) => {
+        throw err;
+      });
   }
 
   async getServers() {
+    if (this.serversCache.has("servers"))
+      return this.serversCache.get("servers") as ServersResponse;
+
     return await fetch(`${this.API_BASE}/servers`)
       .then((res) => res.json())
       .then((res: ServersResponse) => {
+        this.serversCache.set("servers", res);
+
         return res as ServersResponse;
       })
-      .catch(() => {
-        return;
+      .catch((err) => {
+        throw err;
       });
   }
 

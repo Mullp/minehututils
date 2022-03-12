@@ -2,9 +2,7 @@ import { ApplicationCommandOptionChoice } from "discord.js";
 import { minehut } from "../..";
 import { Autocompletion } from "../structures/AutocompletionStructure";
 
-export default new Autocompletion("info", async (interaction) => {
-  if (!(interaction.options.getSubcommand() === "server")) return;
-
+export default new Autocompletion("playerlist", async (interaction) => {
   const servers = (await minehut.getServers())?.servers
     .map((server) => server.name)
     .filter((server) =>

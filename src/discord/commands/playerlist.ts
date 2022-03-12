@@ -20,6 +20,7 @@ export default new Command({
       option
         .setName("server")
         .setDescription("The server to grab the player list from.")
+        .setAutocomplete(true)
         .setRequired(true)
     ),
 

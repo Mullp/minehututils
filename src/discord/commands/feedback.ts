@@ -1,10 +1,5 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
-import {
-  ActionRow,
-  ButtonComponent,
-  Modal,
-  TextInputComponent,
-} from "discord.js";
+import { ActionRow, Modal, TextInputComponent } from "discord.js";
 import { Command } from "../structures/Command";
 
 export default new Command({
@@ -45,27 +40,5 @@ export default new Command({
           )
         )
     );
-
-    // console.log(interaction.replied); // true
-    // console.log(interaction.deferred); // false
-
-    // await interaction.deferReply({ ephemeral: true });
-
-    // await interaction.followUp({
-    //   ephemeral: true,
-    //   content: "ephemeral maybe?",
-    // });
-
-    // await interaction.followUp({
-    //   ephemeral: true,
-    //   components: [
-    //     new ActionRow().addComponents(
-    //       new ButtonComponent()
-    //         .setCustomId("feedback")
-    //         .setLabel("Click here to submit feedback!")
-    //         .setStyle(3)
-    //     ),
-    //   ],
-    // });
   },
 });

@@ -3,7 +3,7 @@ import {
   inlineCode,
   SlashCommandBuilder,
 } from "@discordjs/builders";
-import { MessageEmbed } from "discord.js";
+import { Embed } from "discord.js";
 import { readFileSync } from "fs";
 import { minehut } from "../..";
 import { addInviteField } from "../../lib/addInviteField";
@@ -18,7 +18,7 @@ export default new Command({
   data: new SlashCommandBuilder()
     .setName("names")
     .setDescription("Generate random available server names.")
-    .addNumberOption((option) =>
+    .addIntegerOption((option) =>
       option
         .setName("amount")
         .setDescription("Amount of names to generate.")
@@ -32,7 +32,7 @@ export default new Command({
         .setDescription("The phrase the names must inclue.")
         .setRequired(false)
     )
-    .addNumberOption((option) =>
+    .addIntegerOption((option) =>
       option
         .setName("length")
         .setDescription("The exact length of the names.")
@@ -44,7 +44,7 @@ export default new Command({
   run: async ({ interaction }) => {
     await interaction.deferReply({ ephemeral: false });
 
-    const amount: number = interaction.options.getNumber("amount") || 10; // TODO: Add mongoDB user rank
+    const amount: number = interaction.options.getInteger("amount") || 10; // TODO: Add mongoDB user rank
 
     let words: string[] = allWords;
 
@@ -53,11 +53,9 @@ export default new Command({
         word.includes(interaction.options.getString("includes") || "")
       );
 
-    if (interaction.options.getNumber("length"))
+    if (interaction.options.getInteger("length"))
       words = words.filter(
-        (word) =>
-          word.length ===
-          Math.floor(interaction.options.getNumber("length") || 6)
+        (word) => word.length === interaction.options.getInteger("length") || 6
       );
 
     const checkedNames: string[] = [];
@@ -81,7 +79,7 @@ export default new Command({
       names.slice(i * 10, i * 10 + 10)
     );
 
-    const namesEmbed = new MessageEmbed()
+    const namesEmbed = new Embed()
       .setColor("#ffffff")
       .setAuthor({
         name: "Random names",
@@ -97,22 +95,25 @@ export default new Command({
       for (const [index, chunk] of chunks.entries()) {
         if (!(chunk.filter((word) => word !== undefined).length > 0)) continue;
 
-        namesEmbed.addField(
-          index === 0
-            ? `${inlineCode(
-                names.filter((word) => word !== undefined).length.toString()
-              )} available names`
-            : "\u200B",
-          codeBlock(chunk.filter((word) => word !== undefined).join("\n")),
-          true
-        );
+        namesEmbed.addFields({
+          name:
+            index === 0
+              ? `${inlineCode(
+                  names.filter((word) => word !== undefined).length.toString()
+                )} available names`
+              : "\u200B",
+          value: codeBlock(
+            chunk.filter((word) => word !== undefined).join("\n")
+          ),
+          inline: true,
+        });
       }
     } else {
-      namesEmbed.addField(
-        `${inlineCode("0")} available names`,
-        "No avaliable names found with your search query.",
-        false
-      );
+      namesEmbed.addFields({
+        name: `${inlineCode("0")} available names`,
+        value: "No avaliable names found with your search query.",
+        inline: false,
+      });
     }
 
     if (interaction.guildId !== process.env.guildId)

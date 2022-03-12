@@ -4,11 +4,11 @@ import { ApiPlayer } from "../typings/apiPlayer";
 import { idToUuid } from "./idToUuid";
 
 const nameCache = new NodeCache({
-  stdTTL: 3 * 24 * 60 * 60, // * 3 days
+  stdTTL: 5 * 24 * 60 * 60, // * 5 days
   checkperiod: 24 * 60 * 60, // * 1 day
 });
 const uuidCache = new NodeCache({
-  stdTTL: 3 * 24 * 60 * 60, // * 3 days
+  stdTTL: 5 * 24 * 60 * 60, // * 5 days
   checkperiod: 24 * 60 * 60, // * 1 day
 });
 
@@ -17,8 +17,6 @@ export async function getPlayer(player: string) {
     nameCache.has(player.toLowerCase()) ||
     uuidCache.has(player.toLowerCase())
   ) {
-    console.log("got from cahce");
-
     return nameCache.has(player.toLowerCase())
       ? (nameCache.get(player.toLowerCase()) as ApiPlayer)
       : (uuidCache.get(player.toLowerCase()) as ApiPlayer);
@@ -34,8 +32,8 @@ export async function getPlayer(player: string) {
         uuidCache.set(idToUuid(apiPlayer.id).toLowerCase(), apiPlayer);
         return apiPlayer;
       })
-      .catch((err) => {
-        throw err;
+      .catch(() => {
+        return;
       });
 
   if (
@@ -56,7 +54,7 @@ export async function getPlayer(player: string) {
         return apiPlayer as ApiPlayer;
       })
       .catch((err) => {
-        throw err;
+        return;
       });
 
   return;

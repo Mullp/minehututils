@@ -8,7 +8,7 @@ import {
   time,
   underscore,
 } from "@discordjs/builders";
-import { MessageEmbed } from "discord.js";
+import { Embed } from "discord.js";
 import { minehut } from "../..";
 import { addInviteField } from "../../lib/addInviteField";
 import { Command } from "../structures/Command";
@@ -42,15 +42,14 @@ export default new Command({
         //   a.playerData.playerCount < b.playerData.playerCount ? 1 : -1
         // );
 
-        const servers = (await minehut.getServers().catch()).servers.sort(
-          (a, b) =>
-            a.playerData.playerCount < b.playerData.playerCount ? 1 : -1
+        const servers = (await minehut.getServers())?.servers.sort((a, b) =>
+          a.playerData.playerCount < b.playerData.playerCount ? 1 : -1
         );
         const minehutSimpleStats = await minehut.getSimpleStats();
         const minehutPlayerDistribution = await minehut.getPlayerDistribution();
         const minehutHomepageStats = await minehut.getHomepageStats();
 
-        const minehutEmbed: MessageEmbed = new MessageEmbed()
+        const minehutEmbed = new Embed()
           .setColor("#ffffff")
           .setTitle("General Minehut information")
           .setAuthor({
@@ -66,9 +65,9 @@ export default new Command({
           .setTimestamp();
 
         if (servers)
-          minehutEmbed.addField(
-            `${underscore("Top 5 servers")}`,
-            `${(
+          minehutEmbed.addFields({
+            name: `${underscore("Top 5 servers")}`,
+            value: `${(
               await Promise.all(
                 servers.splice(0, 5).map(async (i) => {
                   const server = await minehut.servers.get(i.name);
@@ -83,13 +82,13 @@ export default new Command({
                 })
               )
             ).join("\n\n")}`,
-            true
-          );
+            inline: true,
+          });
 
         if (minehutSimpleStats || minehutHomepageStats)
-          minehutEmbed.addField(
-            `${underscore("Network stats")}`,
-            `${
+          minehutEmbed.addFields({
+            name: `${underscore("Network stats")}`,
+            value: `${
               minehutSimpleStats
                 ? `${bold("Ram usage")}\n${inlineCode(
                     `${parseInt(minehutSimpleStats.ramCount.toString())}ɢʙ / ${
@@ -122,13 +121,13 @@ export default new Command({
                   )}\n\n`
                 : ""
             }`,
-            true
-          );
+            inline: true,
+          });
 
         if (minehutPlayerDistribution)
-          minehutEmbed.addField(
-            `${underscore("Player distribution")}`,
-            `${bold("Java players")}\nTotal: ${inlineCode(
+          minehutEmbed.addFields({
+            name: `${underscore("Player distribution")}`,
+            value: `${bold("Java players")}\nTotal: ${inlineCode(
               minehutPlayerDistribution.java.total.toString()
             )}\nOn servers: ${inlineCode(
               minehutPlayerDistribution.java.playerServer.toString()
@@ -141,8 +140,8 @@ export default new Command({
             )}\nIn lobby: ${inlineCode(
               minehutPlayerDistribution.bedrock.lobby.toString()
             )}`,
-            true
-          );
+            inline: true,
+          });
 
         if (interaction.guildId !== process.env.guildId)
           await addInviteField(minehutEmbed);
@@ -159,7 +158,7 @@ export default new Command({
           .catch();
 
         if (!server) {
-          const unknownEmbed: MessageEmbed = new MessageEmbed()
+          const unknownEmbed = new Embed()
             .setColor("#ffffff")
             .setAuthor({
               name: "Unknown server",
@@ -184,7 +183,7 @@ export default new Command({
           return await interaction.editReply({ embeds: [unknownEmbed] });
         }
 
-        const serverEmbed: MessageEmbed = new MessageEmbed()
+        const serverEmbed = new Embed()
           .setColor("#ffffff")
           .setTitle(
             `${
@@ -210,8 +209,8 @@ export default new Command({
         );
 
         if (server.categories && server.categories.length > 0)
-          serverEmbed.addField(
-            `${server.categories
+          serverEmbed.addFields({
+            name: `${server.categories
               .join(", ")
               .toLocaleLowerCase()
               .replace(/([A-Za-z])\w+/g, (category) => {
@@ -220,21 +219,22 @@ export default new Command({
                 );
               })
               .replace(/, ((?:.(?!, ))+)$/, " and $1")}`,
-            "\u200B",
-            false
-          );
+            value: "\u200B",
+            inline: false,
+          });
 
-        serverEmbed.addField(
-          "Player count",
-          `${inlineCode(
+        serverEmbed.addFields({
+          name: "Player count",
+          value: `${inlineCode(
             `${server.playerCount} / ${await server.getMaxPlayers()}`
           )}${server.online ? `\nRank #${await server.getRank()}` : ""}`,
-          true
-        );
+          inline: true,
+        });
 
-        serverEmbed.addField(
-          "Last started",
-          "" +
+        serverEmbed.addFields({
+          name: "Last started",
+          value:
+            "" +
             (server.lastOnline
               ? time(
                   parseInt(Math.floor(server.lastOnline / 1000).toString()),
@@ -247,12 +247,13 @@ export default new Command({
                 ) +
                 ")"
               : "Server has never been started"),
-          true
-        );
+          inline: true,
+        });
 
-        serverEmbed.addField(
-          "Name registration date",
-          "" +
+        serverEmbed.addFields({
+          name: "Name registration date",
+          value:
+            "" +
             time(
               parseInt(Math.floor(server.createdAt / 1000).toString()),
               "D"
@@ -263,48 +264,53 @@ export default new Command({
               "R"
             ) +
             ")",
-          true
-        );
+          inline: true,
+        });
 
-        serverEmbed.addField(
-          "Server plan",
-          `${server.activeServerPlan}\n${underscore(
+        serverEmbed.addFields({
+          name: "Server plan",
+          value: `${server.activeServerPlan}\n${underscore(
             (Math.round(server.creditsPerDay * 10) / 10).toString()
           )} credits/day`,
-          true
-        );
+          inline: true,
+        });
 
         const icon = await server.getActiveIcon();
 
-        serverEmbed.addField(
-          "Server icon",
-          `${
+        serverEmbed.addFields({
+          name: "Server icon",
+          value: `${
             icon
               ? `${icon.displayName}\n${underscore(
                   icon.price.toString()
                 )} credits`
               : "Sign"
           }`,
-          true
-        );
+          inline: true,
+        });
 
         if (server.serverProperties)
-          serverEmbed.addField(
-            "Whitelist",
-            server.serverProperties["white-list"] ? "On" : "Off",
-            true
-          );
+          serverEmbed.addFields({
+            name: "Whitelist",
+            value: server.serverProperties["white-list"] ? "On" : "Off",
+            inline: true,
+          });
 
-        serverEmbed.addField("\u200B", "\u200B", false);
-        serverEmbed.addField(
-          `Installed content ${inlineCode(
+        serverEmbed.addFields({
+          name: "\u200B",
+          value: "\u200B",
+          inline: false,
+        });
+        serverEmbed.addFields({
+          name: `Installed content ${inlineCode(
             `${server.raw.installed_content.length}`
           )}`,
-          server.raw.installed_content.length > 0
-            ? `${formatEmoji("947247320641208380", true)}`
-            : "No content installed",
-          false
-        );
+          value:
+            server.raw.installed_content.length > 0
+              ? `${formatEmoji("947247320641208380", true)}`
+              : "No content installed",
+          inline: false,
+        });
 
         if (interaction.guildId !== process.env.guildId)
           await addInviteField(serverEmbed);
@@ -325,12 +331,19 @@ export default new Command({
               url.includes("discord.gg")
                 ? `${formatEmoji("950376852642471996")} ${content.title}`
                 : content.title,
-              url
+              url,
+              url.includes("discord.gg")
+                ? `DISCORD INVITE LINK | ${content.title}`
+                : ""
             )}`;
           }
         );
 
-        if (installedContent && installedContent.length > 0) {
+        if (
+          installedContent &&
+          installedContent.length > 0 &&
+          serverEmbed.fields
+        ) {
           if (
             serverEmbed.fields.findIndex((field) =>
               field.name.includes("Installed content")
@@ -371,17 +384,19 @@ export default new Command({
           }
 
           chunks.forEach((chunk, index) => {
-            serverEmbed.addField(
-              index === 0
-                ? `Installed content ${inlineCode(
-                    `${server.raw.installed_content.length}`
-                  )}`
-                : "\u200B",
-              index === chunks.length - 1
-                ? chunk.join(", ").replace(/, ((?:.(?!, ))+)$/, " and $1")
-                : chunk.join(", ") + ",",
-              false
-            );
+            serverEmbed.addFields({
+              name:
+                index === 0
+                  ? `Installed content ${inlineCode(
+                      `${server.raw.installed_content.length}`
+                    )}`
+                  : "\u200B",
+              value:
+                index === chunks.length - 1
+                  ? chunk.join(", ").replace(/, ((?:.(?!, ))+)$/, " and $1")
+                  : chunk.join(", ") + ",",
+              inline: false,
+            });
           });
 
           if (interaction.guildId !== process.env.guildId)

@@ -28,11 +28,7 @@ export default new Command({
 
     const player = await getPlayer(
       interaction.options.getString("player") || ""
-    ).catch(() => {
-      return;
-    });
-
-    console.log(player);
+    );
 
     if (!player) {
       const embed = new Embed()

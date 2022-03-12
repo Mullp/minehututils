@@ -4,7 +4,7 @@ import {
   inlineCode,
   SlashCommandBuilder,
 } from "@discordjs/builders";
-import { MessageEmbed } from "discord.js";
+import { Embed } from "discord.js";
 import { minehut } from "../..";
 import { addInviteField } from "../../lib/addInviteField";
 import { getPlayer } from "../../lib/getPlayer";
@@ -31,7 +31,7 @@ export default new Command({
     );
 
     if (!server) {
-      const unknownEmbed: MessageEmbed = new MessageEmbed()
+      const unknownEmbed = new Embed()
         .setColor("#ffffff")
         .setAuthor({
           name: "Unknown server",
@@ -57,7 +57,7 @@ export default new Command({
     }
 
     if (!server.online || !server.players) {
-      const offlineEmbed: MessageEmbed = new MessageEmbed()
+      const offlineEmbed = new Embed()
         .setColor("#ffffff")
         .setTitle(`Server offline   ${formatEmoji("934136685980176435")}`)
         .setDescription(
@@ -90,7 +90,7 @@ export default new Command({
       })
     );
 
-    const playersEmbed = new MessageEmbed()
+    const playersEmbed = new Embed()
       .setColor("#ffffff")
       .setAuthor({
         name: server.name,
@@ -102,30 +102,40 @@ export default new Command({
       })
       .setTimestamp();
 
-    const chunks: string[][] = [];
-    let [lengthHold, currentChunk] = [0, 0];
-    for (const player of playerList) {
-      if (lengthHold + player.length > 1024) {
-        lengthHold = 0;
-        currentChunk += 1;
+    if (playerList.length > 0) {
+      const chunks: string[][] = [];
+      let [lengthHold, currentChunk] = [0, 0];
+      for (const player of playerList) {
+        if (lengthHold + player.length > 1024) {
+          lengthHold = 0;
+          currentChunk += 1;
+        }
+
+        lengthHold += player.length + 4;
+        if (!chunks[currentChunk]) chunks[currentChunk] = [];
+        chunks[currentChunk].push(player);
       }
 
-      lengthHold += player.length + 4;
-      if (!chunks[currentChunk]) chunks[currentChunk] = [];
-      chunks[currentChunk].push(player);
+      chunks.forEach((chunk, index) => {
+        playersEmbed.addFields({
+          name:
+            index === 0
+              ? `Online players ${inlineCode(`${playerList.length}`)}`
+              : "\u200B",
+          value:
+            index === chunks.length - 1
+              ? chunk.join(", ").replace(/, ((?:.(?!, ))+)$/, " and $1")
+              : chunk.join(", ") + ",",
+          inline: false,
+        });
+      });
+    } else {
+      playersEmbed.addFields({
+        name: `Online players ${inlineCode(`0`)}`,
+        value: "No online players",
+        inline: false,
+      });
     }
-
-    chunks.forEach((chunk, index) => {
-      playersEmbed.addField(
-        index === 0
-          ? `Online players ${inlineCode(`${playerList.length}`)}`
-          : "\u200B",
-        index === chunks.length - 1
-          ? chunk.join(", ").replace(/, ((?:.(?!, ))+)$/, " and $1")
-          : chunk.join(", ") + ",",
-        false
-      );
-    });
 
     if (interaction.guildId !== process.env.guildId)
       await addInviteField(playersEmbed);

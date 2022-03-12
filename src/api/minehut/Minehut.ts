@@ -53,23 +53,23 @@ export class Minehut {
       .then(async (res) => {
         const players = await this.getServers()
           .then((res) =>
-            res.servers
+            res?.servers
               .map((server) =>
                 server.playerData.players.map((player) => player)
               )
               .flat(1)
               .filter((uuid) => !uuid.startsWith("00000000"))
           )
-          .catch((err) => {
-            throw err;
+          .catch(() => {
+            return;
           });
 
         this.playersCache.set("players", players);
 
         return players;
       })
-      .catch((err) => {
-        throw err;
+      .catch(() => {
+        return;
       });
   }
 
@@ -84,8 +84,8 @@ export class Minehut {
 
         return res as ServersResponse;
       })
-      .catch((err) => {
-        throw err;
+      .catch(() => {
+        return;
       });
   }
 

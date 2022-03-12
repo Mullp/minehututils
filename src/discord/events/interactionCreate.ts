@@ -4,11 +4,11 @@ import { Event } from "../structures/Event";
 import { ExtendedInteraction } from "../../typings/command";
 
 export default new Event("interactionCreate", async (interaction) => {
-  if (interaction.isCommand()) {
+  if (interaction.isChatInputCommand()) {
     const command = client.commands.get(interaction.commandName);
     if (!command) return interaction.followUp("This command doesn't exist!");
 
-    command
+    await command
       .run({
         args: interaction.options as CommandInteractionOptionResolver,
         client,
@@ -21,18 +21,16 @@ export default new Event("interactionCreate", async (interaction) => {
     const autocompletion = client.autocompletions.get(interaction.commandName);
     if (!autocompletion) return;
 
-    autocompletion.run(interaction).catch();
+    await autocompletion.run(interaction).catch(() => console.log("errored"));
   } else if (interaction.isButton()) {
     const button = client.buttons.get(interaction.customId);
     if (!button) return;
 
-    button.run(interaction).catch();
+    await button.run(interaction).catch();
   } else if (interaction.isModalSubmit()) {
-    // await interaction.deferReply();
-
     const modal = client.modals.get(interaction.customId);
     if (!modal) return;
 
-    modal.run(interaction).catch();
+    await modal.run(interaction).catch();
   }
 });

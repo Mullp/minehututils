@@ -18,5 +18,5 @@ export default ({ db }: TInput) => {
   };
   connect();
 
-  mongoose.connection.on("disconnected", connect);
+  mongoose.connection.on("Disconnected", connect);
 };

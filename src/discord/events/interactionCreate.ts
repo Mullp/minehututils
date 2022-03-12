@@ -1,10 +1,5 @@
-import {
-  ActionRow,
-  CommandInteractionOptionResolver,
-  Modal,
-  TextInputComponent,
-} from "discord.js";
-import { client, minehut } from "../..";
+import { CommandInteractionOptionResolver } from "discord.js";
+import { client } from "../..";
 import { Event } from "../structures/Event";
 import { ExtendedInteraction } from "../../typings/command";
 
@@ -33,7 +28,7 @@ export default new Event("interactionCreate", async (interaction) => {
 
     button.run(interaction).catch();
   } else if (interaction.isModalSubmit()) {
-    await interaction.deferReply();
+    // await interaction.deferReply();
 
     const modal = client.modals.get(interaction.customId);
     if (!modal) return;

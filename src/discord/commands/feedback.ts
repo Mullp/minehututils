@@ -28,9 +28,9 @@ export default new Command({
           ),
           new ActionRow<TextInputComponent>().addComponents(
             new TextInputComponent()
-              .setCustomId("description")
-              .setLabel("Description")
-              .setPlaceholder("Description for feedback")
+              .setCustomId("feedback")
+              .setLabel("feedback")
+              .setPlaceholder("The feedback")
               .setRequired(true)
               .setStyle(2)
           ),
@@ -46,7 +46,15 @@ export default new Command({
         )
     );
 
+    // console.log(interaction.replied); // true
+    // console.log(interaction.deferred); // false
+
     // await interaction.deferReply({ ephemeral: true });
+
+    // await interaction.followUp({
+    //   ephemeral: true,
+    //   content: "ephemeral maybe?",
+    // });
 
     // await interaction.followUp({
     //   ephemeral: true,

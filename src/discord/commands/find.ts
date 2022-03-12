@@ -5,7 +5,7 @@ import {
   italic,
   SlashCommandBuilder,
 } from "@discordjs/builders";
-import { MessageEmbed } from "discord.js";
+import { Embed } from "discord.js";
 import { minehut } from "../..";
 import { addInviteField } from "../../lib/addInviteField";
 import { getPlayer } from "../../lib/getPlayer";
@@ -24,12 +24,18 @@ export default new Command({
     ),
 
   run: async ({ interaction }) => {
+    await interaction.deferReply({ ephemeral: false });
+
     const player = await getPlayer(
       interaction.options.getString("player") || ""
-    );
+    ).catch(() => {
+      return;
+    });
+
+    console.log(player);
 
     if (!player) {
-      const embed: MessageEmbed = new MessageEmbed()
+      const embed = new Embed()
         .setColor("#ffffff")
         .setAuthor({
           name: "Unknown player",
@@ -51,7 +57,7 @@ export default new Command({
 
     const serverOn = await minehut.players.find(idToUuid(player.id) || "");
 
-    const embed: MessageEmbed = new MessageEmbed()
+    const embed = new Embed()
       .setColor("#ffffff")
       .setAuthor({
         name: player.name,

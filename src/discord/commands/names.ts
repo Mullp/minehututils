@@ -42,6 +42,8 @@ export default new Command({
     ),
 
   run: async ({ interaction }) => {
+    await interaction.deferReply({ ephemeral: false });
+
     const amount: number = interaction.options.getNumber("amount") || 10; // TODO: Add mongoDB user rank
 
     let words: string[] = allWords;

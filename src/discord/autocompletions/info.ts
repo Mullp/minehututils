@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionChoice } from "discord.js";
 import { minehut } from "../..";
-import { Autocompletion } from "../structures/Autocompletion";
+import { Autocompletion } from "../structures/AutocompletionStructure";
 
 export default new Autocompletion("info", async (interaction) => {
   if (!(interaction.options.getSubcommand() === "server")) return;

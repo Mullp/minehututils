@@ -24,6 +24,8 @@ export default new Command({
     ),
 
   run: async ({ interaction }) => {
+    await interaction.deferReply({ ephemeral: false });
+
     const server = await minehut.servers.get(
       interaction.options.getString("server") || ""
     );

@@ -31,8 +31,11 @@ export async function getPlayer(player: string) {
       .then((data: any) => data.json())
       .then(async (apiPlayer: ApiPlayer) => {
         nameCache.set(apiPlayer.name.toLowerCase(), apiPlayer);
-        uuidCache.set((await idToUuid(apiPlayer.id)).toLowerCase(), apiPlayer);
+        uuidCache.set(idToUuid(apiPlayer.id).toLowerCase(), apiPlayer);
         return apiPlayer;
+      })
+      .catch((err) => {
+        throw err;
       });
 
   if (
@@ -45,7 +48,7 @@ export async function getPlayer(player: string) {
     )
       .then((data: any) => data.json())
       .then((apiPlayer) => {
-        if (apiPlayer.path) throw new Error("No response");
+        if (apiPlayer.path) return;
 
         nameCache.set(apiPlayer.name.toLowerCase(), apiPlayer);
         uuidCache.set(idToUuid(apiPlayer.id).toLowerCase(), apiPlayer);
@@ -56,5 +59,5 @@ export async function getPlayer(player: string) {
         throw err;
       });
 
-  return new Error("Unknown player string");
+  return;
 }

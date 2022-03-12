@@ -34,6 +34,8 @@ export default new Command({
     ),
 
   run: async ({ interaction }) => {
+    await interaction.deferReply({ ephemeral: false });
+
     switch (interaction.options.getSubcommand()) {
       case "minehut": // TODO: Add minehut stats
         // const servers = (await minehut.getServers())?.servers.sort((a, b) =>

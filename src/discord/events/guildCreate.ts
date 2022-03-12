@@ -1,8 +1,6 @@
 import { inlineCode } from "@discordjs/builders";
-import { WebhookClient } from "discord.js";
+import { webhookClient } from "../..";
 import { Event } from "../structures/Event";
-
-const webhookClient = new WebhookClient({ url: process.env.webhookUrl });
 
 export default new Event("guildCreate", (event) => {
   webhookClient.send({

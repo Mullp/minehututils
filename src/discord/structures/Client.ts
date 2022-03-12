@@ -1,10 +1,10 @@
 import {
+  ActivityType,
   ApplicationCommandDataResolvable,
   AutocompleteInteraction,
   Client,
   ClientEvents,
   Collection,
-  Intents,
 } from "discord.js";
 import { CommandType } from "../../typings/command";
 import { glob } from "glob";
@@ -15,23 +15,27 @@ import {
   SlashCommandBuilder,
   SlashCommandSubcommandsOnlyBuilder,
 } from "@discordjs/builders";
-import { Autocompletion } from "./Autocompletion";
+import { Autocompletion } from "./AutocompletionStructure";
+import { ButtonClick } from "./ButtonClick";
+import { ModalSubmit } from "./ModalSubmitStructure";
 
 const globPromise = promisify(glob);
 
 export class ExtendedClient extends Client {
   commands: Collection<string, CommandType> = new Collection();
   autocompletions: Collection<string, Autocompletion> = new Collection();
+  buttons: Collection<string, ButtonClick> = new Collection();
+  modals: Collection<string, ModalSubmit> = new Collection();
 
   constructor() {
     super({
-      intents: ["GUILDS"],
+      intents: ["GuildInvites"],
       allowedMentions: { parse: [] },
       presence: {
         status: "online",
         activities: [
           {
-            type: "LISTENING",
+            type: ActivityType.Listening,
             name: "you  ʕ•ᴥ•ʔ",
           },
         ],
@@ -88,6 +92,14 @@ export class ExtendedClient extends Client {
         });
     });
 
+    // * Event
+    const eventFiles = await globPromise(`${__dirname}/../events/*{.ts,.js}`);
+
+    eventFiles.forEach(async (filePath) => {
+      const event: Event<keyof ClientEvents> = await this.importFile(filePath);
+      this.on(event.event, event.run);
+    });
+
     // * Autocompletions
     const autocompleFiles = await globPromise(
       `${__dirname}/../autocompletions/*{.ts,.js}`
@@ -98,12 +110,20 @@ export class ExtendedClient extends Client {
       this.autocompletions.set(autocompletion.command, autocompletion);
     });
 
-    // * Event
-    const eventFiles = await globPromise(`${__dirname}/../events/*{.ts,.js}`);
+    // * Buttons
+    const buttonFiles = await globPromise(`${__dirname}/../buttons/*{.ts,.js}`);
 
-    eventFiles.forEach(async (filePath) => {
-      const event: Event<keyof ClientEvents> = await this.importFile(filePath);
-      this.on(event.event, event.run);
+    buttonFiles.forEach(async (filePath) => {
+      const button: ButtonClick = await this.importFile(filePath);
+      this.buttons.set(button.id, button);
+    });
+
+    // * Modals
+    const modalFiles = await globPromise(`${__dirname}/../modals/*{.ts,.js}`);
+
+    modalFiles.forEach(async (filePath) => {
+      const modal: ModalSubmit = await this.importFile(filePath);
+      this.modals.set(modal.id, modal);
     });
   }
 }

@@ -67,16 +67,16 @@ export class Server {
     return await this.client
       .getServers()
       .then((res) => {
-        return (
-          res.servers
-            .sort((a, b) =>
-              a.playerData.playerCount < b.playerData.playerCount ? 1 : -1
-            )
-            .findIndex((server) => this.name === server.name) + 1
-        );
+        const rank = res?.servers
+          .sort((a, b) =>
+            a.playerData.playerCount < b.playerData.playerCount ? 1 : -1
+          )
+          .findIndex((server) => this.name === server.name);
+
+        return rank ? rank + 1 : 0;
       })
-      .catch((err) => {
-        throw err;
+      .catch(() => {
+        return 0;
       });
   }
 
@@ -84,20 +84,20 @@ export class Server {
     return this.maxPlayers
       ? this.maxPlayers
       : this.activeServerPlan === "YEARLY MH Unlimited"
-      ? "500"
+      ? 500
       : this.activeServerPlan === "MH Unlimited"
-      ? "500"
+      ? 500
       : this.activeServerPlan === "MH75"
-      ? "75"
+      ? 75
       : this.activeServerPlan === "MH35"
-      ? "35"
+      ? 35
       : this.activeServerPlan === "MH20"
-      ? "20"
+      ? 20
       : this.activeServerPlan === "Daily"
-      ? "20"
+      ? 20
       : this.activeServerPlan === "Free"
-      ? "10"
-      : "10";
+      ? 10
+      : 10;
   }
 
   async getPurchasedIcons() {

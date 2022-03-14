@@ -11,12 +11,17 @@ export class PlayerManager {
 
   async find(player: string, byUuid: boolean = true) {
     const servers = (await this.client.getServers())?.servers;
-    if (!servers) return;
-
-    const uuid: string = byUuid
+    const uuid = byUuid
       ? player
-      : await idToUuid((await getPlayer(player))?.id || "");
+      : idToUuid((await getPlayer(player))?.id || "");
 
-    return servers.find((server) => server.playerData.players.includes(uuid));
+    if (!servers) return;
+    return (
+      await Promise.all(
+        servers.map((server) =>
+          server.playerData.players.includes(uuid) ? server : undefined
+        )
+      )
+    ).filter((element) => element);
   }
 }

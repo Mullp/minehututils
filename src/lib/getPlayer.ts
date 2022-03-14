@@ -47,10 +47,8 @@ export async function getPlayer(player: string) {
       .then((data: any) => data.json())
       .then((apiPlayer) => {
         if (apiPlayer.path) return;
-
         nameCache.set(apiPlayer.name.toLowerCase(), apiPlayer);
         uuidCache.set(idToUuid(apiPlayer.id).toLowerCase(), apiPlayer);
-
         return apiPlayer as ApiPlayer;
       })
       .catch((err) => {

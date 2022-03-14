@@ -81,7 +81,6 @@ export class Minehut {
       .then((res) => res.json())
       .then((res: ServersResponse) => {
         this.serversCache.set("servers", res);
-
         return res as ServersResponse;
       })
       .catch(() => {

@@ -20,7 +20,7 @@ export class IconManager {
     return found;
   }
 
-  private async fetchAll() {
+  async fetchAll() {
     return await fetch(`${this.client.API_BASE}/servers/icons`)
       .then((res) => res.json())
       .then((res: IconResponse[]) => {

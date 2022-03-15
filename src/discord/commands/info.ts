@@ -223,7 +223,7 @@ export default new Command({
           name: "Player count",
           value: `${inlineCode(
             `${server.playerCount} / ${await server.getMaxPlayers()}`
-          )}${server.online ? `\nRank #${await server.getRank()}` : ""}`,
+          )}`, // ${server.online ? `\nRank #${await server.getRank()}` : ""} // ! Broken
           inline: true,
         });
 

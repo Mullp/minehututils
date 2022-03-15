@@ -64,12 +64,12 @@ export default new Command({
       .addFields(
         {
           name: `Status   ${
-            serverOn
+            serverOn && serverOn.length > 0
               ? `<:right:934136703990513715>`
               : `<:wrong:934136685980176435>`
           }`,
           value:
-            serverOn && serverOn[0]
+            serverOn && serverOn.length > 0 && serverOn[0]
               ? `${hyperlink(
                   player.name,
                   `https://namemc.com/profile/${player.name}`

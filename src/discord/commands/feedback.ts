@@ -5,7 +5,9 @@ import { Command } from "../structures/Command";
 export default new Command({
   data: new SlashCommandBuilder()
     .setName("feedback")
-    .setDescription("Submit feedback to the Minehut Utils team."),
+    .setDescription(
+      "Submit feedback, like bugs or suggestions, to the Minehut Utils team."
+    ),
 
   run: async ({ interaction }) => {
     await interaction.showModal(
@@ -17,7 +19,7 @@ export default new Command({
             new TextInputComponent()
               .setCustomId("subject")
               .setLabel("Feedback subject")
-              .setPlaceholder("Bug, Feature request or other (please describe)")
+              .setPlaceholder("Bug, suggestion or other (please describe)")
               .setRequired(true)
               .setStyle(1)
           ),

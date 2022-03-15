@@ -14,9 +14,9 @@ export class IconManager {
 
   // No byName option for IconManager#get, yet...
   async fetch(icons: string[]) {
-    const allIcons: Icon[] = await this.fetchAll();
-    const found = allIcons.filter((icon) => icons.includes(icon.id));
-    if (found.length < 1) return [] as Icon[];
+    const allIcons = await this.fetchAll();
+    const found = allIcons?.filter((icon) => icons.includes(icon.id));
+    if (found && found.length < 1) return [] as Icon[];
     return found;
   }
 
@@ -28,6 +28,8 @@ export class IconManager {
         // TODO: Add cache so that the API isn't constantly called
         return icons;
       })
-      .catch();
+      .catch(() => {
+        return;
+      });
   }
 }

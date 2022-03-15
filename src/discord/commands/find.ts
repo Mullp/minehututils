@@ -68,21 +68,22 @@ export default new Command({
               ? `<:right:934136703990513715>`
               : `<:wrong:934136685980176435>`
           }`,
-          value: serverOn
-            ? `${hyperlink(
-                player.name,
-                `https://namemc.com/profile/${player.name}`
-              )} is currently on ${bold(
-                `${inlineCode(serverOn.name)}`
-              )}.\n${italic(
-                `Get server info ${inlineCode(
-                  `/info server ${serverOn.name}`
-                )}.`
-              )}` // TODO: Add "joined x time ago"
-            : `${hyperlink(
-                player.name,
-                `https://namemc.com/profile/${player.name}`
-              )} is currently not on any server.`,
+          value:
+            serverOn && serverOn[0]
+              ? `${hyperlink(
+                  player.name,
+                  `https://namemc.com/profile/${player.name}`
+                )} is currently on ${bold(
+                  `${inlineCode(serverOn[0].name)}`
+                )}.\n${italic(
+                  `Get server info ${inlineCode(
+                    `/info server ${serverOn[0].name}`
+                  )}.`
+                )}` // TODO: Add "joined x time ago"
+              : `${hyperlink(
+                  player.name,
+                  `https://namemc.com/profile/${player.name}`
+                )} is currently not on any server.`,
         }
         // { // TODO: Add
         //   name: "History",

@@ -28,7 +28,7 @@ export default new Command({
           option
             .setName("server")
             .setDescription("The server to get info on.")
-            .setAutocomplete(true)
+            .setAutocomplete(false)
             .setRequired(true)
         )
     ),
@@ -37,11 +37,7 @@ export default new Command({
     await interaction.deferReply({ ephemeral: false });
 
     switch (interaction.options.getSubcommand()) {
-      case "minehut": // TODO: Add minehut stats
-        // const servers = (await minehut.getServers())?.servers.sort((a, b) =>
-        //   a.playerData.playerCount < b.playerData.playerCount ? 1 : -1
-        // );
-
+      case "minehut":
         const servers = (await minehut.getServers())?.servers.sort((a, b) =>
           a.playerData.playerCount < b.playerData.playerCount ? 1 : -1
         );
@@ -64,7 +60,7 @@ export default new Command({
           })
           .setTimestamp();
 
-        if (servers)
+        if (servers && servers.length > 0)
           minehutEmbed.addFields({
             name: `${underscore("Top 5 servers")}`,
             value: `${(
@@ -296,21 +292,23 @@ export default new Command({
             inline: true,
           });
 
-        serverEmbed.addFields({
-          name: "\u200B",
-          value: "\u200B",
-          inline: false,
-        });
-        serverEmbed.addFields({
-          name: `Installed content ${inlineCode(
-            `${server.raw.installed_content.length}`
-          )}`,
-          value:
-            server.raw.installed_content.length > 0
-              ? `${formatEmoji("947247320641208380", true)}`
-              : "No content installed",
-          inline: false,
-        });
+        if (server.raw.installed_content) {
+          serverEmbed.addFields({
+            name: "\u200B",
+            value: "\u200B",
+            inline: false,
+          });
+          serverEmbed.addFields({
+            name: `Installed content ${inlineCode(
+              `${server.raw.installed_content.length}`
+            )}`,
+            value:
+              server.raw.installed_content.length > 0
+                ? `${formatEmoji("947247320641208380", true)}`
+                : "No content installed",
+            inline: false,
+          });
+        }
 
         if (interaction.guildId !== process.env.guildId)
           await addInviteField(serverEmbed);
@@ -319,92 +317,97 @@ export default new Command({
           embeds: [serverEmbed],
         });
 
-        const installedContent = (await server.getInstalledContent()).map(
-          (content) => {
-            const url = content.details.links[1].linkUrl
-              ? content.details.links[1].linkUrl.split(" ")[0]
-              : content.details.links[0].linkUrl
-              ? content.details.links[0].linkUrl.split(" ")[0]
-              : "";
+        if (server.raw.installed_content) {
+          const installedContent = (await server.getInstalledContent())?.map(
+            (content) => {
+              const url = content.details.links[1].linkUrl
+                ? content.details.links[1].linkUrl.split(" ")[0]
+                : content.details.links[0].linkUrl
+                ? content.details.links[0].linkUrl.split(" ")[0]
+                : "";
 
-            return `${hyperlink(
-              url.includes("discord.gg")
-                ? `${formatEmoji("950376852642471996")} ${content.title}`
-                : content.title,
-              url,
-              url.includes("discord.gg")
-                ? `DISCORD INVITE LINK | ${content.title}`
-                : ""
-            )}`;
-          }
-        );
+              return `${hyperlink(
+                url.includes("discord.gg")
+                  ? `${formatEmoji("950376852642471996")} ${content.title}`
+                  : content.title,
+                url,
+                url.includes("discord.gg")
+                  ? `DISCORD INVITE LINK | ${content.title}`
+                  : ""
+              )}`;
+            }
+          );
 
-        if (
-          installedContent &&
-          installedContent.length > 0 &&
-          serverEmbed.fields
-        ) {
           if (
-            serverEmbed.fields.findIndex((field) =>
-              field.name.includes("Installed content")
-            ) > -1
-          )
-            serverEmbed.fields.splice(
+            installedContent &&
+            installedContent.length > 0 &&
+            serverEmbed.fields
+          ) {
+            if (
               serverEmbed.fields.findIndex((field) =>
                 field.name.includes("Installed content")
-              ),
-              1
-            );
+              ) > -1
+            )
+              serverEmbed.fields.splice(
+                serverEmbed.fields.findIndex((field) =>
+                  field.name.includes("Installed content")
+                ),
+                1
+              );
 
-          if (
-            serverEmbed.fields.findIndex((field) =>
-              field.value.includes("Join the official support server!")
-            ) > -1
-          )
-            serverEmbed.fields.splice(
+            if (
               serverEmbed.fields.findIndex((field) =>
                 field.value.includes("Join the official support server!")
-              ),
-              1
-            );
+              ) > -1
+            )
+              serverEmbed.fields.splice(
+                serverEmbed.fields.findIndex((field) =>
+                  field.value.includes("Join the official support server!")
+                ),
+                1
+              );
 
-          const chunks: string[][] = [];
+            const chunks: string[][] = [];
 
-          let lengthHold = 0;
-          let currentChunk = 0;
-          for (const content of installedContent) {
-            if (lengthHold + content.length > 1024) {
-              lengthHold = 0;
-              currentChunk += 1;
+            let lengthHold = 0;
+            let currentChunk = 0;
+            for (const content of installedContent) {
+              if (lengthHold + content.length > 1024) {
+                lengthHold = 0;
+                currentChunk += 1;
+              }
+
+              lengthHold += content.length + 4;
+              if (!chunks[currentChunk]) chunks[currentChunk] = [];
+              chunks[currentChunk].push(content);
             }
 
-            lengthHold += content.length + 4;
-            if (!chunks[currentChunk]) chunks[currentChunk] = [];
-            chunks[currentChunk].push(content);
-          }
-
-          chunks.forEach((chunk, index) => {
-            serverEmbed.addFields({
-              name:
-                index === 0
-                  ? `Installed content ${inlineCode(
-                      `${server.raw.installed_content.length}`
-                    )}`
-                  : "\u200B",
-              value:
-                index === chunks.length - 1
-                  ? chunk.join(", ").replace(/, ((?:.(?!, ))+)$/, " and $1")
-                  : chunk.join(", ") + ",",
-              inline: false,
+            chunks.forEach((chunk, index) => {
+              serverEmbed.addFields({
+                name:
+                  index === 0
+                    ? `Installed content ${inlineCode(
+                        `${
+                          server.raw.installed_content
+                            ? server.raw.installed_content.length
+                            : 0
+                        }`
+                      )}`
+                    : "\u200B",
+                value:
+                  index === chunks.length - 1
+                    ? chunk.join(", ").replace(/, ((?:.(?!, ))+)$/, " and $1")
+                    : chunk.join(", ") + ",",
+                inline: false,
+              });
             });
-          });
 
-          if (interaction.guildId !== process.env.guildId)
-            await addInviteField(serverEmbed);
+            if (interaction.guildId !== process.env.guildId)
+              await addInviteField(serverEmbed);
 
-          await interaction.editReply({ embeds: [serverEmbed] });
+            await interaction.editReply({ embeds: [serverEmbed] });
+          }
         }
-
         break;
       default:
         break;

@@ -5,9 +5,9 @@
   "author": "Mullp <mullp@protonmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@discordjs/builders": "^0.13.0-dev.1646913825.dcd4797",
+    "@discordjs/builders": "^0.13.0-dev.1647259738.2297c2b",
     "cross-fetch": "^3.1.5",
-    "discord.js": "^14.0.0-dev.1646914074.dcd4797",
+    "discord.js": "^14.0.0-dev.1646654941.b162f27",
     "dotenv": "^16.0.0",
     "glob": "^7.2.0",
     "mongoose": "^6.2.3",

@@ -20,7 +20,7 @@ export default new Command({
       option
         .setName("server")
         .setDescription("The server to grab the player list from.")
-        .setAutocomplete(true)
+        .setAutocomplete(false)
         .setRequired(true)
     ),
 
@@ -57,7 +57,7 @@ export default new Command({
       return await interaction.editReply({ embeds: [unknownEmbed] });
     }
 
-    if (!server.online || !server.players) {
+    if (!server.online) {
       const offlineEmbed = new Embed()
         .setColor("#ffffff")
         .setTitle(`Server offline   ${formatEmoji("934136685980176435")}`)
@@ -78,18 +78,23 @@ export default new Command({
       return await interaction.editReply({ embeds: [offlineEmbed] });
     }
 
-    const playerList = await Promise.all(
-      server.players?.map(async (uuid) => {
-        const player = await getPlayer(uuid);
+    let playerList: string[] = [];
+    if (server.players) {
+      playerList = await Promise.all(
+        server.players?.map(async (uuid) => {
+          const player = await getPlayer(uuid);
 
-        return player
-          ? hyperlink(
-              player.name.replaceAll("_", "\\_"),
-              `https://namemc.com/profile/${player.name}`
-            )
-          : "";
-      })
-    );
+          return player
+            ? hyperlink(
+                player.name.replaceAll("_", "\\_"),
+                `https://namemc.com/profile/${player.name}`
+              )
+            : "";
+        })
+      );
+    } else {
+      playerList = [];
+    }
 
     const playersEmbed = new Embed()
       .setColor("#ffffff")
